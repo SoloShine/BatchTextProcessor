@@ -31,26 +31,60 @@ namespace BatchTextProcessor.Behaviors
             AssociatedObject.Drop -= OnDrop;
         }
 
+        private Point? dragStartPoint;
+        private const double DragThreshold = 5.0; // 最小拖动距离阈值
+
         private void OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            // 检查是否在编辑状态（通过KeyboardFocus或EditingControl）
+            if (Keyboard.FocusedElement is TextBox || 
+                Keyboard.FocusedElement is ComboBox ||
+                Keyboard.FocusedElement is DatePicker)
+            {
+                draggedItem = null;
+                return;
+            }
+
             var row = FindAncestor<DataGridRow>(e.OriginalSource as DependencyObject);
             if (row != null)
             {
                 draggedItem = row.Item;
+                dragStartPoint = e.GetPosition(AssociatedObject);
             }
         }
 
         private void OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             draggedItem = null;
+            dragStartPoint = null;
         }
 
         private void OnPreviewMouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed && draggedItem != null)
+            if (e.LeftButton != MouseButtonState.Pressed || 
+                draggedItem == null || 
+                dragStartPoint == null)
             {
-                DragDrop.DoDragDrop(AssociatedObject, draggedItem, DragDropEffects.Move);
+                return;
             }
+
+            // 检查是否达到最小拖动距离
+            var currentPoint = e.GetPosition(AssociatedObject);
+            if (Math.Abs(currentPoint.X - dragStartPoint.Value.X) < DragThreshold &&
+                Math.Abs(currentPoint.Y - dragStartPoint.Value.Y) < DragThreshold)
+            {
+                return;
+            }
+
+            // 检查是否在可拖动区域
+            var hitTest = VisualTreeHelper.HitTest(AssociatedObject, currentPoint);
+            if (hitTest == null || FindAncestor<DataGridRow>(hitTest.VisualHit) == null)
+            {
+                return;
+            }
+
+            DragDrop.DoDragDrop(AssociatedObject, draggedItem, DragDropEffects.Move);
+            dragStartPoint = null;
         }
 
         private void OnDrop(object sender, DragEventArgs e)
