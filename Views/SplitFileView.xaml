@@ -1,0 +1,115 @@
+
+<UserControl x:Class="BatchTextProcessor.Views.SplitFileView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:BatchTextProcessor.ViewModels"
+             xmlns:conv="clr-namespace:BatchTextProcessor.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="600">
+    <UserControl.Resources>
+        <conv:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <conv:BytesToSizeConverter x:Key="BytesToSizeConverter"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 按钮区域 -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <Button Content="添加文件" 
+                   Command="{Binding AddFilesCommand}" 
+                   Width="120"
+                   Style="{StaticResource ButtonPrimary}"/>
+            <Button Content="删除选中" 
+                   Command="{Binding RemoveFileCommand}"
+                   CommandParameter="{Binding ElementName=filesDataGrid, Path=SelectedItem}"
+                   Width="120"
+                   Margin="10,0,0,0"/>
+            <Button Content="清空列表" 
+                   Command="{Binding ClearFilesCommand}" 
+                   Width="120"
+                   Margin="10,0,0,0"/>
+            <Button Content="执行拆分" 
+                   Command="{Binding SplitFilesCommand}" 
+                   Margin="10,0,0,0" 
+                   Width="120"/>
+        </StackPanel>
+
+        <!-- 拆分选项区域 -->
+        <Border Grid.Row="1" Margin="10,0" Padding="10" Background="{DynamicResource RegionBrush}" CornerRadius="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 按行拆分选项 -->
+                <RadioButton Grid.Row="0" Grid.Column="0"
+                            Content="按行数拆分" 
+                            IsChecked="{Binding UseSizeSplit, Converter={StaticResource InverseBooleanConverter}}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,10,5"/>
+                
+                <StackPanel Grid.Row="0" Grid.Column="1" 
+                           Orientation="Horizontal" 
+                           IsEnabled="{Binding UseSizeSplit, Converter={StaticResource InverseBooleanConverter}}">
+                    <Label Content="行数：" VerticalAlignment="Center" Width="60"/>
+                    <TextBox Text="{Binding LinesPerFile}" 
+                            Width="80"
+                            VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <!-- 按大小拆分选项 -->
+                <RadioButton Grid.Row="1" Grid.Column="0"
+                            Content="按大小拆分" 
+                            IsChecked="{Binding UseSizeSplit}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,10,0"/>
+                
+                <StackPanel Grid.Row="1" Grid.Column="1" 
+                           Orientation="Horizontal" 
+                           IsEnabled="{Binding UseSizeSplit}">
+                    <Label Content="大小(MB)：" VerticalAlignment="Center" Width="60"/>
+                    <TextBox Text="{Binding SizePerFileMB, StringFormat=N1}" 
+                            Width="80"
+                            VerticalAlignment="Center">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding SplitFilesCommand}" Key="Enter"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 文件列表 -->
+        <DataGrid x:Name="filesDataGrid" 
+                 Grid.Row="2" 
+                 ItemsSource="{Binding FileItems}" 
+                 AutoGenerateColumns="False" 
+                 Margin="10"
+                 SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="序号" Binding="{Binding Index}" Width="60" IsReadOnly="True"/>
+                <DataGridTextColumn Header="文件名" Binding="{Binding FileName}" Width="200" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="ToolTip" Value="{Binding FullPath}"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="文件大小" Binding="{Binding FileSize, Converter={StaticResource BytesToSizeConverter}}" Width="100" IsReadOnly="True"/>
+                <DataGridTextColumn Header="字数" Binding="{Binding WordCount}" Width="80" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
