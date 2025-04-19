@@ -231,44 +231,44 @@ namespace BatchTextProcessor.ViewModels
         }
 
         public class PreviewItem
-    {
-        public int Index { get; set; }
-        public string? MergedName { get; set; }
-        public int FileCount { get; set; }
-        public IEnumerable<TextFileItem> Files { get; set; } = Enumerable.Empty<TextFileItem>();
-    }
-
-    [ObservableProperty]
-    private ObservableCollection<PreviewItem> _previewItems = new();
-
-    [RelayCommand]
-    private void PreviewExport()
-    {
-        PreviewItems.Clear();
-        var groups = FileItems
-            .Where(f => f.ShouldExport && !string.IsNullOrEmpty(f.MergedName))
-            .GroupBy(f => f.MergedName);
-
-        int i = 1;
-        foreach (var group in groups)
         {
-            PreviewItems.Add(new PreviewItem
-            {
-                Index = i++,
-                MergedName = group.Key,
-                FileCount = group.Count(),
-                Files = group.ToList()
-            });
+            public int Index { get; set; }
+            public string? MergedName { get; set; }
+            public int FileCount { get; set; }
+            public IEnumerable<TextFileItem> Files { get; set; } = Enumerable.Empty<TextFileItem>();
         }
-    }
 
-    [RelayCommand]
-    private void ShowPreviewWindow()
-    {
-        PreviewExport();
-                var window = new BatchTextProcessor.Views.PreviewWindow(this);
-        window.ShowDialog();
-    }
+        [ObservableProperty]
+        private ObservableCollection<PreviewItem> _previewItems = new();
+
+        [RelayCommand]
+        private void PreviewExport()
+        {
+            PreviewItems.Clear();
+            var groups = FileItems
+                .Where(f => f.ShouldExport && !string.IsNullOrEmpty(f.MergedName))
+                .GroupBy(f => f.MergedName);
+
+            int i = 1;
+            foreach (var group in groups)
+            {
+                PreviewItems.Add(new PreviewItem
+                {
+                    Index = i++,
+                    MergedName = group.Key,
+                    FileCount = group.Count(),
+                    Files = group.ToList()
+                });
+            }
+        }
+
+        [RelayCommand]
+        private void ShowPreviewWindow()
+        {
+            PreviewExport();
+                    var window = new BatchTextProcessor.Views.PreviewWindow(this);
+            window.ShowDialog();
+        }
 
         [RelayCommand(CanExecute = nameof(CanExport))]
         private void ExportFiles()
