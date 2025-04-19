@@ -108,6 +108,10 @@
                             Binding="{Binding Index}"
                             Header="序号"
                             IsReadOnly="True" />
+                        <DataGridCheckBoxColumn
+                            Binding="{Binding IsSelectedForDeletion}"
+                            Header="选择"
+                            Width="Auto" />
                         <DataGridTextColumn
                             Binding="{Binding FileName}"
                             Header="文件名"

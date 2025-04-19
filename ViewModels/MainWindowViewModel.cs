@@ -171,7 +171,7 @@ namespace BatchTextProcessor.ViewModels
         [RelayCommand]
         private void RemoveSelected()
         {
-            var selectedItems = FileItems.Where(f => f.ShouldExport).ToList();
+            var selectedItems = FileItems.Where(f => f.IsSelectedForDeletion).ToList();
             foreach (var item in selectedItems)
             {
                 FileItems.Remove(item);
@@ -304,6 +304,7 @@ namespace BatchTextProcessor.ViewModels
         private string _fileName = string.Empty;
         private string _fullPath = string.Empty;
         private bool _shouldExport = true;
+        private bool _isSelectedForDeletion;
         private string _mergedName = string.Empty;
 
         public int Index
@@ -334,6 +335,12 @@ namespace BatchTextProcessor.ViewModels
         {
             get => _mergedName;
             set => SetProperty(ref _mergedName, value);
+        }
+
+        public bool IsSelectedForDeletion
+        {
+            get => _isSelectedForDeletion;
+            set => SetProperty(ref _isSelectedForDeletion, value);
         }
     }
 }
