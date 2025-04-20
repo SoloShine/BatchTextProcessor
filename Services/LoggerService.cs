@@ -8,6 +8,11 @@ namespace BatchTextProcessor.Services
             System.Diagnostics.Debug.WriteLine($"[INFO] {message}");
         }
 
+        public void LogWarning(string warningMessage)
+        {
+            System.Diagnostics.Debug.WriteLine($"[WARN] {warningMessage}");
+        }
+
         public void LogError(string errorMessage)
         {
             System.Diagnostics.Debug.WriteLine($"[ERROR] {errorMessage}");

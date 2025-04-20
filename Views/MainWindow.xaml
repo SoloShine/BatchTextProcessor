@@ -22,6 +22,12 @@
             <Setter Property="Margin" Value="10,5" />
             <Setter Property="Background" Value="{DynamicResource RegionBrush}" />
         </Style>
+
+        <ContextMenu x:Key="TextBoxContextMenu">
+            <MenuItem Command="ApplicationCommands.Paste" Header="粘贴" />
+            <MenuItem Command="ApplicationCommands.Copy" Header="复制" />
+            <MenuItem Command="ApplicationCommands.Cut" Header="剪切" />
+        </ContextMenu>
     </Window.Resources>
     <Window.DataContext>
         <vm:MainWindowViewModel />
@@ -127,6 +133,14 @@
                         <i:Interaction.Behaviors>
                             <local:DataGridDragDropBehavior />
                         </i:Interaction.Behaviors>
+                        <DataGrid.Resources>
+                            <ContextMenu x:Key="fileNameMenu" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                <MenuItem
+                                    Command="{Binding Path=DataContext.OpenFileLocationCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                    CommandParameter="{Binding FullPath}"
+                                    Header="打开文件位置" />
+                            </ContextMenu>
+                        </DataGrid.Resources>
                         <DataGrid.Columns>
                             <DataGridTextColumn
                                 Binding="{Binding Index}"
@@ -143,11 +157,23 @@
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="ToolTip" Value="{Binding FullPath}" />
+                                        <Setter Property="ContextMenu" Value="{StaticResource fileNameMenu}" />
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
                             <DataGridCheckBoxColumn Binding="{Binding ShouldExport}" Header="导出" />
-                            <DataGridTextColumn Binding="{Binding MergedName}" Header="合并名称" />
+                            <DataGridTemplateColumn Header="合并名称">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding MergedName}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBox ContextMenu="{StaticResource TextBoxContextMenu}" Text="{Binding MergedName, UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
 

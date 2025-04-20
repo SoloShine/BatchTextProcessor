@@ -9,6 +9,7 @@ using BatchTextProcessor.Services;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Diagnostics;
 using BatchTextProcessor.Utils;
 using BatchTextProcessor.Models;
 
@@ -33,6 +34,7 @@ namespace BatchTextProcessor.ViewModels
             SaveProjectCommand = new RelayCommand(OnSaveProject, CanSaveProject);
             ExitCommand = new RelayCommand(OnExit);
             AboutCommand = new RelayCommand(OnAbout);
+            OpenFileLocationCommand = new RelayCommand<string>(OnOpenFileLocation);
         }
 
         public IRelayCommand InitializeCommand { get; }
@@ -40,6 +42,7 @@ namespace BatchTextProcessor.ViewModels
         public IRelayCommand SaveProjectCommand { get; }
         public IRelayCommand ExitCommand { get; }
         public IRelayCommand AboutCommand { get; }
+        public IRelayCommand<string> OpenFileLocationCommand { get; }
 
         private void OnInitialize()
         {
@@ -97,6 +100,22 @@ namespace BatchTextProcessor.ViewModels
                 .ToList();
 
             return new ObservableCollection<TextFileItem>(files);
+        }
+
+        [RelayCommand]
+        private void PasteToSelectedItems(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+            
+            var selectedItems = FileItems.Where(f => f.IsSelectedForDeletion).ToList();
+            if (selectedItems.Count == 0) return;
+
+            foreach (var item in selectedItems)
+            {
+                item.MergedName = text;
+            }
+            
+            CanExport = FileItems.Any(f => f.ShouldExport && !string.IsNullOrEmpty(f.MergedName));
         }
 
         private bool CanSaveProject()
@@ -166,6 +185,26 @@ namespace BatchTextProcessor.ViewModels
         {
             var aboutWindow = new Views.AboutWindow();
             aboutWindow.ShowDialog();
+        }
+
+        private void OnOpenFileLocation(string filePath)
+        {
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    var args = $"/select,\"{filePath}\"";
+                    Process.Start("explorer.exe", args);
+                }
+                else
+                {
+                    _logger.LogWarning($"尝试打开不存在的文件位置: {filePath} (文件不存在)");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"打开文件位置失败: {ex.Message}");
+            }
         }
 
         [RelayCommand]
