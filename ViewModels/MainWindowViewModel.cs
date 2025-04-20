@@ -43,6 +43,7 @@ namespace BatchTextProcessor.ViewModels
         public IRelayCommand ExitCommand { get; }
         public IRelayCommand AboutCommand { get; }
         public IRelayCommand<string> OpenFileLocationCommand { get; }
+        public IRelayCommand<string> UpdateMergeNameCommand { get; }
 
         private void OnInitialize()
         {
