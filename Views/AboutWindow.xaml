@@ -6,8 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="关于文本批量处理工具"
-    Width="400"
-    Height="300"
+    Width="500"
+    Height="350"
     ResizeMode="NoResize"
     WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
@@ -42,7 +42,7 @@
             <TextBlock Margin="0,5" Text="GitHub: https://github.com/SoloShine/BatchTextProcessor" />
             <TextBlock
                 Margin="0,10"
-                Text="描述: 一个强大的文本批量处理工具，支持合并和拆分文本文件。"
+                Text="描述: 一个强大的文本批量处理工具，支持合并和拆分文本文件。部分代码为Comate（zulu）生成"
                 TextWrapping="Wrap" />
         </StackPanel>
 

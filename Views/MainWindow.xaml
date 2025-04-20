@@ -18,8 +18,9 @@
     mc:Ignorable="d">
     <Window.Resources>
         <Style x:Key="MenuStyle" TargetType="Menu">
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="10,5" />
+            <Setter Property="Background" Value="{DynamicResource RegionBrush}" />
         </Style>
     </Window.Resources>
     <Window.DataContext>
@@ -27,154 +28,154 @@
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        
+
         <Menu Grid.Row="0" Style="{StaticResource MenuStyle}">
             <MenuItem Header="文件">
-                <MenuItem Header="打开工程" Command="{Binding OpenProjectCommand}"/>
-                <MenuItem Header="保存工程" Command="{Binding SaveProjectCommand}"/>
-                <Separator/>
-                <MenuItem Header="退出" Command="{Binding ExitCommand}"/>
+                <MenuItem Command="{Binding OpenProjectCommand}" Header="打开工程" />
+                <MenuItem Command="{Binding SaveProjectCommand}" Header="保存工程" />
+                <Separator />
+                <MenuItem Command="{Binding ExitCommand}" Header="退出" />
             </MenuItem>
             <MenuItem Header="帮助">
-                <MenuItem Header="关于" Command="{Binding AboutCommand}"/>
+                <MenuItem Command="{Binding AboutCommand}" Header="关于" />
             </MenuItem>
         </Menu>
         <TabControl Grid.Row="1">
-        <TabItem Header="文本合并">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+            <TabItem Header="文本合并">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-                <StackPanel
-                    Grid.Row="0"
-                    Margin="10"
-                    Orientation="Horizontal">
-                    <Button
-                        Width="120"
-                        Command="{Binding AddFilesCommand}"
-                        Content="添加文件"
-                        Style="{StaticResource ButtonPrimary}" />
-                    <Button
-                        Width="120"
-                        Margin="10,0"
-                        Command="{Binding AddFoldersCommand}"
-                        Content="添加文件夹" />
-                    <Button
-                        Width="120"
-                        Margin="10,0"
-                        Command="{Binding RemoveSelectedCommand}"
-                        Content="删除选中" />
-                    <Button
-                        Width="120"
-                        Margin="10,0"
-                        Command="{Binding ClearListCommand}"
-                        Content="清空列表" />
-                    <Button
-                        Width="120"
-                        Margin="10,0"
-                        Command="{Binding RefreshMergeNamesCommand}"
-                        Content="刷新合并名称" />
-                </StackPanel>
-
-                <Border
-                    Grid.Row="1"
-                    Margin="10,5"
-                    Padding="10"
-                    Background="{DynamicResource RegionBrush}"
-                    CornerRadius="5">
-                    <StackPanel Orientation="Horizontal">
-                        <Label
-                            Margin="0,0,5,0"
-                            VerticalAlignment="Center"
-                            Content="最小匹配字符:" />
-                        <TextBox
-                            Width="60"
-                            Margin="0,0,15,0"
-                            Text="{Binding MinMatchChars, UpdateSourceTrigger=PropertyChanged}">
-                            <TextBox.InputBindings>
-                                <KeyBinding Key="Enter" Command="{Binding RefreshMergeNamesCommand}" />
-                            </TextBox.InputBindings>
-                        </TextBox>
-
-                        <Label
-                            Margin="0,0,5,0"
-                            VerticalAlignment="Center"
-                            Content="最大匹配字符:" />
-                        <TextBox Width="60" Text="{Binding MaxMatchChars, UpdateSourceTrigger=PropertyChanged}">
-                            <TextBox.InputBindings>
-                                <KeyBinding Key="Enter" Command="{Binding RefreshMergeNamesCommand}" />
-                            </TextBox.InputBindings>
-                        </TextBox>
+                    <StackPanel
+                        Grid.Row="0"
+                        Margin="10"
+                        Orientation="Horizontal">
+                        <Button
+                            Width="120"
+                            Command="{Binding AddFilesCommand}"
+                            Content="添加文件"
+                            Style="{StaticResource ButtonPrimary}" />
+                        <Button
+                            Width="120"
+                            Margin="10,0"
+                            Command="{Binding AddFoldersCommand}"
+                            Content="添加文件夹" />
+                        <Button
+                            Width="120"
+                            Margin="10,0"
+                            Command="{Binding RemoveSelectedCommand}"
+                            Content="删除选中" />
+                        <Button
+                            Width="120"
+                            Margin="10,0"
+                            Command="{Binding ClearListCommand}"
+                            Content="清空列表" />
+                        <Button
+                            Width="120"
+                            Margin="10,0"
+                            Command="{Binding RefreshMergeNamesCommand}"
+                            Content="刷新合并名称" />
                     </StackPanel>
-                </Border>
 
-                <DataGrid
-                    Grid.Row="2"
-                    Margin="10"
-                    AllowDrop="True"
-                    AutoGenerateColumns="False"
-                    CanUserReorderColumns="False"
-                    CanUserSortColumns="False"
-                    ItemsSource="{Binding FileItems}">
-                    <i:Interaction.Behaviors>
-                        <local:DataGridDragDropBehavior />
-                    </i:Interaction.Behaviors>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn
-                            Binding="{Binding Index}"
-                            Header="序号"
-                            IsReadOnly="True" />
-                        <DataGridCheckBoxColumn
-                            Binding="{Binding IsSelectedForDeletion}"
-                            Header="选择"
-                            Width="Auto" />
-                        <DataGridTextColumn
-                            Binding="{Binding FileName}"
-                            Header="文件名"
-                            IsReadOnly="True">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="ToolTip" Value="{Binding FullPath}" />
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridCheckBoxColumn Binding="{Binding ShouldExport}" Header="导出" />
-                        <DataGridTextColumn Binding="{Binding MergedName}" Header="合并名称" />
-                    </DataGrid.Columns>
-                </DataGrid>
+                    <Border
+                        Grid.Row="1"
+                        Margin="10,5"
+                        Padding="10"
+                        Background="{DynamicResource RegionBrush}"
+                        CornerRadius="5">
+                        <StackPanel Orientation="Horizontal">
+                            <Label
+                                Margin="0,0,5,0"
+                                VerticalAlignment="Center"
+                                Content="最小匹配字符:" />
+                            <TextBox
+                                Width="60"
+                                Margin="0,0,15,0"
+                                Text="{Binding MinMatchChars, UpdateSourceTrigger=PropertyChanged}">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding RefreshMergeNamesCommand}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
 
-                <StackPanel
-                    Grid.Row="3"
-                    Margin="10"
-                    HorizontalAlignment="Right"
-                    Orientation="Horizontal">
-                    <Button
-                        Width="120"
-                        Height="30"
-                        Margin="0,0,10,0"
-                        Command="{Binding ShowPreviewWindowCommand}"
-                        Content="导出预览"
-                        Style="{StaticResource ButtonPrimary}" />
-                    <Button
-                        Width="120"
-                        Height="30"
-                        Command="{Binding ExportFilesCommand}"
-                        Content="执行导出"
-                        IsEnabled="{Binding CanExport, UpdateSourceTrigger=PropertyChanged}"
-                        Style="{StaticResource ButtonPrimary}" />
-                </StackPanel>
-            </Grid>
-        </TabItem>
-        <TabItem Header="文本拆分">
-            <views:SplitFileView DataContext="{Binding SplitFileViewModel}" />
-        </TabItem>
-    </TabControl>
+                            <Label
+                                Margin="0,0,5,0"
+                                VerticalAlignment="Center"
+                                Content="最大匹配字符:" />
+                            <TextBox Width="60" Text="{Binding MaxMatchChars, UpdateSourceTrigger=PropertyChanged}">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding RefreshMergeNamesCommand}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                        </StackPanel>
+                    </Border>
+
+                    <DataGrid
+                        Grid.Row="2"
+                        Margin="10"
+                        AllowDrop="True"
+                        AutoGenerateColumns="False"
+                        CanUserReorderColumns="False"
+                        CanUserSortColumns="False"
+                        ItemsSource="{Binding FileItems}">
+                        <i:Interaction.Behaviors>
+                            <local:DataGridDragDropBehavior />
+                        </i:Interaction.Behaviors>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn
+                                Binding="{Binding Index}"
+                                Header="序号"
+                                IsReadOnly="True" />
+                            <DataGridCheckBoxColumn
+                                Width="Auto"
+                                Binding="{Binding IsSelectedForDeletion}"
+                                Header="选择" />
+                            <DataGridTextColumn
+                                Binding="{Binding FileName}"
+                                Header="文件名"
+                                IsReadOnly="True">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="ToolTip" Value="{Binding FullPath}" />
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridCheckBoxColumn Binding="{Binding ShouldExport}" Header="导出" />
+                            <DataGridTextColumn Binding="{Binding MergedName}" Header="合并名称" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel
+                        Grid.Row="3"
+                        Margin="10"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                        <Button
+                            Width="120"
+                            Height="30"
+                            Margin="0,0,10,0"
+                            Command="{Binding ShowPreviewWindowCommand}"
+                            Content="导出预览"
+                            Style="{StaticResource ButtonPrimary}" />
+                        <Button
+                            Width="120"
+                            Height="30"
+                            Command="{Binding ExportFilesCommand}"
+                            Content="执行导出"
+                            IsEnabled="{Binding CanExport, UpdateSourceTrigger=PropertyChanged}"
+                            Style="{StaticResource ButtonPrimary}" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="文本拆分">
+                <views:SplitFileView DataContext="{Binding SplitFileViewModel}" />
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
