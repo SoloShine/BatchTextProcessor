@@ -10,6 +10,7 @@ using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Windows;
 using BatchTextProcessor.Utils;
+using BatchTextProcessor.Models;
 
 namespace BatchTextProcessor.ViewModels
 {
@@ -18,21 +19,30 @@ namespace BatchTextProcessor.ViewModels
         private readonly FileScannerService _fileScanner = new();
         private readonly FileMergeService _fileMergeService;
         private readonly FileSplitService _fileSplitService = new();
+        private readonly ProjectFileService _projectFileService;
         private readonly ILogger _logger = new LoggerService();
 
         public MainWindowViewModel()
         {
             _fileMergeService = new FileMergeService(_logger);
+            _projectFileService = new ProjectFileService(_logger);
             SplitFileViewModel = new SplitFileViewModel();
             InitializeCommand = new RelayCommand(OnInitialize);
+            
+            OpenProjectCommand = new RelayCommand(OnOpenProject);
+            SaveProjectCommand = new RelayCommand(OnSaveProject, CanSaveProject);
+            ExitCommand = new RelayCommand(OnExit);
+            AboutCommand = new RelayCommand(OnAbout);
         }
 
         public IRelayCommand InitializeCommand { get; }
+        public IRelayCommand OpenProjectCommand { get; }
+        public IRelayCommand SaveProjectCommand { get; }
+        public IRelayCommand ExitCommand { get; }
+        public IRelayCommand AboutCommand { get; }
 
         private void OnInitialize()
         {
-            // 窗口初始化完成时执行的操作
-            // 由用户手动添加具体实现
             ClearList();
         }
 
@@ -75,11 +85,11 @@ namespace BatchTextProcessor.ViewModels
 
         public ObservableCollection<TextFileItem> GetFilesForPreview(string previewItem)
         {
-            if (string.IsNullOrEmpty(previewItem)) 
+            if (string.IsNullOrEmpty(previewItem))
                 return new ObservableCollection<TextFileItem>();
 
             var mergeName = previewItem.Split(':').LastOrDefault()?.Trim();
-            if (string.IsNullOrEmpty(mergeName)) 
+            if (string.IsNullOrEmpty(mergeName))
                 return new ObservableCollection<TextFileItem>();
 
             var files = FileItems
@@ -87,6 +97,75 @@ namespace BatchTextProcessor.ViewModels
                 .ToList();
 
             return new ObservableCollection<TextFileItem>(files);
+        }
+
+        private bool CanSaveProject()
+        {
+            return FileItems.Any();
+        }
+
+        private void OnOpenProject()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "工程文件|*.btp",
+                Title = "打开工程文件"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    var items = _projectFileService.LoadProject(dialog.FileName);
+                    FileItems.Clear();
+                    foreach (var item in items)
+                    {
+                        FileItems.Add(item);
+                    }
+                    //从工程文件中加载的时候，不需要自动设置合并名称，因为工程文件已经包含了这些信息
+                    //AutoSetMergeNames();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"打开工程文件失败: {ex.Message}");
+                    MessageBox.Show("打开工程文件失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            SaveProjectCommand.NotifyCanExecuteChanged();
+        }
+
+        private void OnSaveProject()
+        {
+            var dialog = new SaveFileDialog
+            {
+                Filter = "工程文件|*.btp",
+                Title = "保存工程文件"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                try
+                {
+                    _projectFileService.SaveProject(dialog.FileName, FileItems);
+                    MessageBox.Show("工程文件保存成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"保存工程文件失败: {ex.Message}");
+                    MessageBox.Show("保存工程文件失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void OnExit()
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void OnAbout()
+        {
+            var aboutWindow = new Views.AboutWindow();
+            aboutWindow.ShowDialog();
         }
 
         [RelayCommand]
@@ -117,12 +196,14 @@ namespace BatchTextProcessor.ViewModels
                     });
 
                 foreach (var file in files)
-                {
-                    FileItems.Add(file);
-                }
+            {
+                FileItems.Add(file);
+            }
 
-                AutoSetMergeNames();
-                CanExport = FileItems.Any(f => f.ShouldExport && !string.IsNullOrEmpty(f.MergedName));
+            AutoSetMergeNames();
+            CanExport = FileItems.Any(f => f.ShouldExport && !string.IsNullOrEmpty(f.MergedName));
+            SaveProjectCommand.NotifyCanExecuteChanged();
+            
             }
         }
 
@@ -178,6 +259,7 @@ namespace BatchTextProcessor.ViewModels
             }
             AutoSetMergeNames();
             CanExport = FileItems.Any(f => f.ShouldExport && !string.IsNullOrEmpty(f.MergedName));
+            SaveProjectCommand.NotifyCanExecuteChanged();
         }
 
         [RelayCommand]
@@ -186,6 +268,7 @@ namespace BatchTextProcessor.ViewModels
             FileItems.Clear();
             PreviewItems.Clear();
             CanExport = false;
+            SaveProjectCommand.NotifyCanExecuteChanged();
         }
 
         [RelayCommand]
@@ -199,7 +282,6 @@ namespace BatchTextProcessor.ViewModels
         {
             var groups = FileItems
                 .GroupBy(f => {
-                    // 使用正则表达式移除任意数字的修饰符
                     var baseName = Regex.Replace(
                         f.FileName, 
                         @"[\(（]\d+[\)）]", 
@@ -266,7 +348,7 @@ namespace BatchTextProcessor.ViewModels
         private void ShowPreviewWindow()
         {
             PreviewExport();
-                    var window = new BatchTextProcessor.Views.PreviewWindow(this);
+            var window = new Views.PreviewWindow(this);
             window.ShowDialog();
         }
 
@@ -295,52 +377,6 @@ namespace BatchTextProcessor.ViewModels
                 PreviewItems.Clear();
                 MessageBox.Show($"导出完成，成功合并{successCount}个文件", "导出结果");
             }
-        }
-    }
-
-    public class TextFileItem : ObservableObject
-    {
-        private int _index;
-        private string _fileName = string.Empty;
-        private string _fullPath = string.Empty;
-        private bool _shouldExport = true;
-        private bool _isSelectedForDeletion;
-        private string _mergedName = string.Empty;
-
-        public int Index
-        {
-            get => _index;
-            set => SetProperty(ref _index, value);
-        }
-
-        public string FileName
-        {
-            get => _fileName;
-            set => SetProperty(ref _fileName, value);
-        }
-
-        public string FullPath
-        {
-            get => _fullPath;
-            set => SetProperty(ref _fullPath, value);
-        }
-
-        public bool ShouldExport
-        {
-            get => _shouldExport;
-            set => SetProperty(ref _shouldExport, value);
-        }
-
-        public string MergedName
-        {
-            get => _mergedName;
-            set => SetProperty(ref _mergedName, value);
-        }
-
-        public bool IsSelectedForDeletion
-        {
-            get => _isSelectedForDeletion;
-            set => SetProperty(ref _isSelectedForDeletion, value);
         }
     }
 }

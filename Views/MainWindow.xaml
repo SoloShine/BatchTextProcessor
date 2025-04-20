@@ -16,10 +16,33 @@
     SizeToContent="Manual"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
+    <Window.Resources>
+        <Style x:Key="MenuStyle" TargetType="Menu">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+        </Style>
+    </Window.Resources>
     <Window.DataContext>
         <vm:MainWindowViewModel />
     </Window.DataContext>
-    <TabControl>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Menu Grid.Row="0" Style="{StaticResource MenuStyle}">
+            <MenuItem Header="文件">
+                <MenuItem Header="打开工程" Command="{Binding OpenProjectCommand}"/>
+                <MenuItem Header="保存工程" Command="{Binding SaveProjectCommand}"/>
+                <Separator/>
+                <MenuItem Header="退出" Command="{Binding ExitCommand}"/>
+            </MenuItem>
+            <MenuItem Header="帮助">
+                <MenuItem Header="关于" Command="{Binding AboutCommand}"/>
+            </MenuItem>
+        </Menu>
+        <TabControl Grid.Row="1">
         <TabItem Header="文本合并">
             <Grid>
                 <Grid.RowDefinitions>
@@ -153,4 +176,5 @@
             <views:SplitFileView DataContext="{Binding SplitFileViewModel}" />
         </TabItem>
     </TabControl>
+    </Grid>
 </Window>

@@ -5,13 +5,13 @@ using System.Text.RegularExpressions;
 
 namespace BatchTextProcessor.Utils
 {
-    public class NaturalSortComparer : IComparer<string>
+    public class NaturalSortComparer : IComparer<string?>
     {
-        public int Compare(string x, string y)
+        public int Compare(string? x, string? y)
         {
-            if (x == null && y == null) return 0;
-            if (x == null) return -1;
-            if (y == null) return 1;
+            if (string.IsNullOrEmpty(x) && string.IsNullOrEmpty(y)) return 0;
+            if (string.IsNullOrEmpty(x)) return -1;
+            if (string.IsNullOrEmpty(y)) return 1;
 
             var regex = new Regex(@"\d+|\D+");
             var xMatches = regex.Matches(x);

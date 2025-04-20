@@ -10,7 +10,7 @@ namespace BatchTextProcessor.Behaviors
 {
     public class DataGridDragDropBehavior : Behavior<DataGrid>
     {
-        private object draggedItem;
+        private object? draggedItem;
 
         protected override void OnAttached()
         {

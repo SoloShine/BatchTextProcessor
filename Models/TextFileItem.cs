@@ -11,8 +11,6 @@ namespace BatchTextProcessor.Models
         private bool _shouldExport = true;
         private bool _isSelectedForDeletion;
         private string _mergedName = string.Empty;
-        private bool _isEditing;
-        private bool _isTextSelected;
 
         public int Index
         {
@@ -41,42 +39,13 @@ namespace BatchTextProcessor.Models
         public string MergedName
         {
             get => _mergedName;
-            set
-            {
-                if (!_isTextSelected && _mergedName != value)
-                {
-                    _mergedName = value;
-                    OnPropertyChanged(nameof(MergedName));
-                }
-            }
+            set => SetProperty(ref _mergedName, value);
         }
 
         public bool IsSelectedForDeletion
         {
             get => _isSelectedForDeletion;
             set => SetProperty(ref _isSelectedForDeletion, value);
-        }
-
-        public bool IsEditing
-        {
-            get => _isEditing;
-            set
-            {
-                if (SetProperty(ref _isEditing, value))
-                {
-                    if (!value) 
-                    {
-                        _isTextSelected = false;
-                        OnPropertyChanged(nameof(MergedName));
-                    }
-                }
-            }
-        }
-
-        public bool IsTextSelected
-        {
-            get => _isTextSelected;
-            set => SetProperty(ref _isTextSelected, value);
         }
     }
 }

@@ -21,6 +21,7 @@ namespace BatchTextProcessor
             containerRegistry.RegisterSingleton<ILogger, LoggerService>();
             containerRegistry.Register<FileScannerService>();
             containerRegistry.Register<FileMergeService>();
+            containerRegistry.Register<ProjectFileService>();
         }
     }
 }

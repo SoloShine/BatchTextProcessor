@@ -69,7 +69,7 @@ namespace BatchTextProcessor.Services
             var currentSize = 0L;
             var currentLines = new List<string>();
 
-            string line;
+            string? line;
             while ((line = reader.ReadLine()) != null)
             {
                 currentLines.Add(line);
