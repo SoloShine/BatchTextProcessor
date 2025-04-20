@@ -10,6 +10,7 @@
     <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
     <AssemblyTitle>BatchTextProcessor</AssemblyTitle>
     <RootNamespace>BatchTextProcessor</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
